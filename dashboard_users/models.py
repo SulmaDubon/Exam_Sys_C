@@ -163,12 +163,11 @@ class UserExam(models.Model):
         self.save()
         self.actualizar_estado()
 
-
-def actualizar_estado(self):
-    """Actualiza el estado basado en la nota."""
-    if self.nota is not None:
-        if self.nota >= 60:  # Por ejemplo, puedes definir que 60 es la nota mínima para aprobar
-            self.estado = 'Aprobado'
-        else:
-            self.estado = 'Reprobado'
-    self.save()  # Guarda los cambios en el modelo
+    def actualizar_estado(self):
+        """Actualiza el estado basado en la nota."""
+        if self.nota is not None:
+            if self.nota >= 60:  # Por ejemplo, puedes definir que 60 es la nota mínima para aprobar
+                self.estado = 'Aprobado'
+            else:
+                self.estado = 'Reprobado'
+        self.save()  # Guarda los cambios en el modelo

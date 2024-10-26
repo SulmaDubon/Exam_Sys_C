@@ -2,6 +2,7 @@
 
 from collections import defaultdict
 from datetime import datetime, timedelta
+import logging
 import random
 from django.shortcuts import render, redirect
 from django.views import View
@@ -91,6 +92,8 @@ def sala_espera_examen(request, examen_id):
 #   EXAMEN
 #-----------------------------------------
 
+logger = logging.getLogger(__name__)
+
 class GenerarExamenView(View):
     template_name = 'dashboard_users/examen.html'
     http_method_names = ['get', 'post']
@@ -115,6 +118,7 @@ class GenerarExamenView(View):
         context = {
             'user_exam': user_exam,
             'pagina_actual': pagina_actual,
+            'examen_id': examen_id,
             'nombre_examen': user_exam.examen.nombre,
             'nombre_usuario': f"{request.user.first_name} {request.user.last_name}",
             'cedula': request.user.cedula,
@@ -138,18 +142,12 @@ class GenerarExamenView(View):
         preguntas = user_exam.preguntas.all().order_by('id')
         pagina_actual = Paginator(preguntas, 20).get_page(page)
 
-        # Imprimir los datos recibidos en el POST para depuración
-        print("Datos del POST:", request.POST)
-
         # Guardar las respuestas enviadas
-        respuestas_modificadas = False  # Bandera para verificar si hubo modificaciones
+        respuestas_modificadas = False
 
         for pregunta in pagina_actual:
             # Obtener la respuesta seleccionada del POST
             respuesta_usuario = request.POST.get(f'pregunta_{pregunta.id}', None)
-            print(f"Pregunta ID: {pregunta.id}, Respuesta Seleccionada: {respuesta_usuario}")
-
-            # Verificar si hay respuesta
             if respuesta_usuario:
                 # Actualizar la respuesta en el diccionario de respuestas de UserExam
                 if str(pregunta.id) not in user_exam.respuestas or user_exam.respuestas[str(pregunta.id)] != respuesta_usuario:
@@ -163,14 +161,13 @@ class GenerarExamenView(View):
 
         # Guardar los cambios solo si hubo modificaciones
         if respuestas_modificadas:
-            print("Guardando respuestas modificadas")
             user_exam.save()
 
         # Verificar si el usuario presionó el botón de "anterior" o "siguiente"
         if 'anterior' in request.POST and pagina_actual.has_previous():
-            return redirect('dashboard_users:generar_examen', examen_id=examen_id, page=pagina_actual.previous_page_number())
+            return redirect('dashboard_users:generar_examen_paginado', examen_id=examen_id, page=pagina_actual.previous_page_number())
         elif 'siguiente' in request.POST and pagina_actual.has_next():
-            return redirect('dashboard_users:generar_examen', examen_id=examen_id, page=pagina_actual.next_page_number())
+            return redirect('dashboard_users:generar_examen_paginado', examen_id=examen_id, page=pagina_actual.next_page_number())
 
         # Verificar si el usuario presionó el botón de "finalizar"
         if 'finalizar' in request.POST:
@@ -181,9 +178,7 @@ class GenerarExamenView(View):
             return redirect('dashboard_users:dashboard')  # Redirigir al dashboard
 
         # Redirigir a la página actual del examen si algo sale mal
-        return redirect('dashboard_users:generar_examen', examen_id=examen_id, page=page)
-
-
+        return redirect('dashboard_users:generar_examen_paginado', examen_id=examen_id, page=page)
 
 #---------------------------------
 # INSCRIPCION
