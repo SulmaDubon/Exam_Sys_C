@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirmar Eliminación de Examen{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h1>Confirmar Eliminación de Examen</h1>
+    <p>¿Estás seguro de que deseas eliminar este examen?</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="button-container">
+            <button type="submit" class="btn btn-primary">Eliminar</button>
+            <a href="{% url 'admin_panel:lista_examenes' %}" class="btn btn-primary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block head %}
+<style>
+    .admin-container {
+        padding: 20px;
+        max-width: 900px;
+        margin: auto;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        color: #d9534f;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    p {
+        margin-top: 20px;
+        text-align: center;
+    }
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    .btn-primary {
+        background-color: #d9534f;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+    .btn-primary:hover {
+        background-color: #c9302c;
+    }
+    .btn-cancel {
+        background-color: #6c757d;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+    .btn-cancel:hover {
+        background-color: #5a6268;
+    }
+</style>
+{% endblock %}
+

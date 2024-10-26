@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Sala de Espera{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Sala de Espera para el Examen</h1>
+    <p>Examen: {{ examen.nombre }}</p>
+    <p>Fecha: {{ examen.fecha }} - Hora: {{ examen.hora }}</p>
+    <p>Tiempo restante para el inicio del examen:</p>
+
+    <h2 id="countdown"></h2>
+
+    <script>
+        // Función de conteo regresivo
+        function startCountdown(duration) {
+            var countdownElement = document.getElementById('countdown');
+            var timer = duration, hours, minutes, seconds;
+            
+            var interval = setInterval(function () {
+                hours = parseInt(timer / 3600, 10);
+                minutes = parseInt((timer % 3600) / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                hours = hours < 10 ? "0" + hours : hours;
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                countdownElement.textContent = hours + ":" + minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(interval);
+                    window.location.href = "{% url 'dashboard_users:generar_examen' examen.id %}";
+                }
+            }, 1000);
+        }
+
+        // Pasar el valor de tiempo restante como un número entero válido
+        var tiempoRestanteSegundos = parseInt("{{ tiempo_restante.total_seconds|default_if_none:0 }}", 10);
+        console.log("Tiempo restante en segundos:", tiempoRestanteSegundos);
+
+        // Si el valor es válido (un número), comenzar el conteo regresivo
+        if (!isNaN(tiempoRestanteSegundos)) {
+            startCountdown(tiempoRestanteSegundos);
+        }
+    </script>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Cambiar Contraseña{% endblock %}
+
+{% block nav_extras %}
+    <li>
+        <form method="post" action="{% url 'users:logout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn-link">Cerrar Sesión</button>
+        </form>
+    </li>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Cambiar Contraseña</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn">Cambiar Contraseña</button>
+    </form>
+</div>
+{% endblock %}
+

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Panel de Administración{% endblock %}
+
+{% block head %}
+<style>
+    .admin-container {
+        padding: 20px;
+        max-width: 800px; /* Ajustado para un tamaño más pequeño */
+        margin: auto;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 20px; /* Ajustado para menos espacio */
+    }
+    nav {
+        margin: 20px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .btn {
+        display: inline-block;
+        width: 150px; /* Ancho más pequeño */
+        height: 50px; /* Altura más pequeña */
+        text-align: center;
+        text-decoration: none;
+        color: #fff;
+        background-color: #007bff;
+        padding: 10px 0;
+        margin: 10px; /* Margen más pequeño entre botones */
+        border-radius: 5px;
+        font-size: 16px; /* Tamaño de fuente más pequeño */
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    .btn:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px);
+    }
+    .logout-link {
+        display: inline-block;
+        width: 150px;
+        height: 50px;
+        text-align: center;
+        text-decoration: none;
+        color: #fff;
+        background-color: #ff0000;
+        padding: 10px 0;
+        margin: 10px;
+        border-radius: 5px;
+        font-size: 16px;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+    .logout-link:hover {
+        background-color: #cc0000;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h1>Bienvenido al Panel de Administración</h1>
+    <nav>
+        <a href="{% url 'admin_panel:lista_usuarios' %}" class="btn">Gestionar Usuarios</a>
+        <a href="{% url 'admin_panel:lista_examenes' %}" class="btn">Gestionar Exámenes</a>
+    </nav>
+    <form method="post" action="{% url 'users:logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="logout-link">Cerrar Sesión</button>
+    </form>
+</div>
+{% endblock %}
+

@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestionar Exámenes{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h1>Gestionar Exámenes</h1>
+
+    <form method="get" class="date-filter-form">
+        <label for="year">Año:</label>
+        <select name="year" id="year">
+            <option value="" {% if not current_year %}selected{% endif %}>Todos</option>
+            {% for y in year_list %}
+            <option value="{{ y }}" {% if y|stringformat:"s" == current_year %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+        </select>
+        
+        <label for="month">Mes:</label>
+        <select name="month" id="month">
+            <option value="" {% if not current_month %}selected{% endif %}>Todos</option>
+            {% for m in month_list %}
+            <option value="{{ m.value }}" {% if m.value|stringformat:"s" == current_month %}selected{% endif %}>{{ m.name }}</option>
+            {% endfor %}
+        </select>
+        
+        <button type="submit">Filtrar</button>
+    </form>
+
+    <div class="button-container">
+        <a href="{% url 'admin_panel:crear_examen' %}" class="btn btn-primary">Agendar Nuevo Examen</a>
+        <a href="{% url 'admin_panel:lista_preguntas' %}" class="btn btn-primary">Preguntas</a>
+        <a href="{% url 'admin_panel:lista_tipo_examen' %}" class="btn btn-primary">Clase de Examen</a>
+        
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>
+                    <a href="?{% if current_year %}year={{ current_year }}&{% endif %}{% if current_month %}month={{ current_month }}&{% endif %}order=fecha&direction={% if request.GET.direction == 'asc' and request.GET.order == 'fecha' %}desc{% else %}asc{% endif %}">
+                        Fecha
+                        {% if request.GET.order == 'fecha' %}
+                            {% if request.GET.direction == 'asc' %}
+                                &#9650; <!-- Flecha hacia arriba -->
+                            {% else %}
+                                &#9660; <!-- Flecha hacia abajo -->
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                </th>
+                <th>Hora</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for examen in examenes %}
+            <tr>
+                <td>{{ examen.nombre }}</td>
+                <td>{{ examen.fecha }}</td>
+                <td>{{ examen.hora }}</td>
+                <td>
+                    <a href="{% url 'admin_panel:editar_examen' examen.pk %}">Editar</a>
+                    <a href="{% url 'admin_panel:eliminar_examen' examen.pk %}">Eliminar</a>
+                    <a href="{% url 'admin_panel:resultados_administrador' examen.pk %}">Resultados</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        {% if is_paginated %}
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li><a href="?{% if current_year %}year={{ current_year }}&{% endif %}{% if current_month %}month={{ current_month }}&{% endif %}page=1">&laquo; primero</a></li>
+                    <li><a href="?{% if current_year %}year={{ current_year }}&{% endif %}{% if current_month %}month={{ current_month }}&{% endif %}page={{ page_obj.previous_page_number }}">anterior</a></li>
+                {% endif %}
+
+                <li class="current-page">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</li>
+
+                {% if page_obj.has_next %}
+                    <li><a href="?{% if current_year %}year={{ current_year }}&{% endif %}{% if current_month %}month={{ current_month }}&{% endif %}page={{ page_obj.next_page_number }}">siguiente</a></li>
+                    <li><a href="?{% if current_year %}year={{ current_year }}&{% endif %}{% if current_month %}month={{ current_month }}&{% endif %}page={{ page_obj.paginator.num_pages }}">último &raquo;</a></li>
+                {% endif %}
+            </ul>
+        {% endif %}
+    </div>
+
+    <div class="back-to-admin">
+        <a href="{% url 'admin_panel:admin_panel' %}" class="btn btn-primary">Panel de Administración</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<style>
+    .admin-container {
+        padding: 20px;
+        max-width: 1200px;
+        margin: auto;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .filter-container {
+        margin-bottom: 20px;
+    }
+    .date-filter-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    .button-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .button-container .btn {
+        margin-bottom: 10px;
+        width: 200px;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+    th, td {
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #007bff;
+        color: white;
+    }
+    .pagination {
+        text-align: center;
+        margin-top: 20px;
+    }
+    .pagination ul {
+        display: inline-block;
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+    .pagination li {
+        display: inline;
+        margin: 0 5px;
+    }
+    .pagination a {
+        color: #007bff;
+        text-decoration: none;
+        padding: 5px 10px;
+        border: 1px solid #007bff;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+    .pagination a:hover {
+        background-color: #0056b3;
+        color: white;
+    }
+    .pagination .current-page {
+        font-weight: bold;
+    }
+    .back-to-admin {
+        text-align: center;
+        margin-top: 40px;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+</style>
+{% endblock %}

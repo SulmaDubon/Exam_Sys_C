@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Iniciar sesión{% endblock %}
+
+{% block head %}
+<style>
+    .btn-submit {
+        display: inline-block;
+        width: 150px; /* Fixed width */
+        height: 40px; /* Fixed height */
+        text-align: center;
+        text-decoration: none;
+        color: #fff; /* Text color white */
+        background-color: #007bff; /* Background color blue */
+        border: none; /* No border */
+        padding: 10px 0; /* Adjust padding */
+        margin: 20px 0; /* Adjust margin */
+        border-radius: 5px; /* Border radius */
+        font-size: 16px; /* Font size for readability */
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        cursor: pointer; /* Pointer cursor on hover */
+    }
+    .btn-submit:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Iniciar sesión</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn-submit">Iniciar sesión</button>
+</form>
+
+{% for message in messages %}
+    <p>{{ message }}</p>
+{% endfor %}
+{% endblock %}
+
+
+
+

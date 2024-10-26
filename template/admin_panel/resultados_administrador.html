@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados Administrador</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4; /* Color de fondo */
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            margin: 10px 0;
+            color: white;
+            background-color: #007bff; /* Color del botón */
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #0056b3; /* Color del botón al pasar el ratón */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Resultados del Examen</h1>
+        <p>Selecciona un informe para generar:</p>
+        
+        <a class="btn" href="{% url 'admin_panel:generar_informe_examen' %}">Generar Informe de Examen</a>
+        
+        <!-- Botón para listar usuarios inscritos -->
+        <a class="btn" href="{% url 'admin_panel:lista_usuarios' %}">Listar Usuarios Inscritos</a>
+    </div>
+</body>
+</html>
+

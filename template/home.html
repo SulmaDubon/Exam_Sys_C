@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block head %}
+<style>
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        padding: 0 5vw; /* Adjust padding relative to viewport width */
+        box-sizing: border-box;
+    }
+    h1 {
+        color: #333;
+        margin-bottom: 4vh; /* Adjust margin relative to viewport height */
+    }
+    nav {
+        margin: 4vh 0; /* Adjust margin relative to viewport height */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .btn {
+        display: inline-block;
+        width: 40vw; /* Adjust width relative to viewport width */
+        max-width: 300px; /* Maximum width to prevent too wide buttons */
+        height: 8vh; /* Adjust height relative to viewport height */
+        max-height: 60px; /* Maximum height to prevent too tall buttons */
+        text-align: center;
+        text-decoration: none;
+        color: #fff;
+        background-color: #007bff;
+        padding: 2vh 0; /* Adjust padding relative to viewport height */
+        margin: 2vh; /* Adjust margin relative to viewport height */
+        border-radius: 5px;
+        font-size: 2.2vh; /* Adjust font size relative to viewport height */
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    .btn:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Página de inicio</h1>
+<nav>
+    <a href="{% url 'users:register' %}" class="btn">Registrarse</a>
+    <a href="{% url 'users:login' %}" class="btn">Iniciar sesión</a>
+    <a href="{% url 'admin_panel:admin_login' %}" class="btn">Administrador</a>
+</nav>
+{% endblock %}

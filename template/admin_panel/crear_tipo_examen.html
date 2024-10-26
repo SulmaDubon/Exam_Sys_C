@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear Tipo de Examen{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h1>Crear Tipo de Examen</h1>
+
+    <!-- Formulario para el tipo de examen -->
+    <form method="post" id="tipo-examen-form">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <h2>Información del Tipo de Examen</h2>
+            {{ tipo_examen_form.as_p }}
+        </div>
+
+        <h2>Módulos del Examen</h2>
+        <div id="modulos">
+            {{ modulo_formset.management_form }}
+
+            <!-- Aquí se renderizan los módulos -->
+            <div id="formset-container">
+                {% for form in modulo_formset %}
+                    <div class="form-group modulo-form">
+                        {{ form.as_p }}
+                        <div class="button-container">
+                            <button type="button" class="btn btn-danger remove-modulo" onclick="removeModulo(this)">Eliminar Módulo</button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Botón para agregar un nuevo módulo -->
+            <div class="button-container">
+                <button type="button" class="btn btn-secondary" id="add-modulo">Añadir Módulo</button>
+            </div>
+        </div>
+
+        <!-- Botones para guardar o cancelar -->
+        <div class="button-container">
+            <button type="submit" class="btn btn-primary">Guardar Tipo de Examen</button>
+            <a href="{% url 'admin_panel:lista_tipo_examen' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block head %}
+<style>
+    .admin-container {
+        padding: 20px;
+        max-width: 1200px;
+        margin: auto;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1, h2 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .button-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+    .button-container .btn {
+        margin: 0 10px;
+    }
+    .modulo-form {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        position: relative;
+    }
+    .remove-modulo {
+        margin-top: 10px;
+        width: auto;
+        align-self: center;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let formIndex = parseInt("{{ modulo_formset.total_form_count|default:'0' }}");
+
+        // Agregar un nuevo formulario de módulo
+        document.getElementById('add-modulo').addEventListener('click', function() {
+            const formContainer = document.getElementById('formset-container');
+            const emptyFormHtml = `{{ modulo_formset.empty_form.as_p|escapejs }}`;
+            const newFormHtml = emptyFormHtml.replace(/__prefix__/g, formIndex);
+            const newFormDiv = document.createElement('div');
+            newFormDiv.classList.add('form-group', 'modulo-form');
+            newFormDiv.innerHTML = newFormHtml + 
+                `<div class="button-container">
+                    <button type="button" class="btn btn-danger remove-modulo" onclick="removeModulo(this)">Eliminar Módulo</button>
+                </div>`;
+            formContainer.appendChild(newFormDiv);
+            formIndex++;
+        });
+    });
+
+    // Función para eliminar un módulo
+    function removeModulo(button) {
+        const formToRemove = button.closest('.modulo-form');
+        formToRemove.remove();
+    }
+</script>
+{% endblock %}

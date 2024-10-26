@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action|capfirst }} Examen{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h1>{{ action|capfirst }} Examen</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Enviar</button>
+    </form>
+    <div class="button-container">
+        <a href="{% url 'admin_panel:admin_panel' %}" class="btn btn-primary"> Panel de Administración</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<style>
+    .admin-container {
+        padding: 20px;
+        max-width: 600px;
+        margin: auto;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    form {
+        margin-bottom: 20px;
+        text-align: left; /* Align text to the left */
+    }
+    label {
+        display: block;
+        margin-bottom: 8px;
+    }
+    input, select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    .btn-primary {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        text-align: center;
+        color: white;
+        background-color: #007bff; /* Using the blue color */
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 18px;
+        transition: background-color 0.3s ease;
+        text-decoration: none;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+    .button-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+</style>
+{% endblock %}

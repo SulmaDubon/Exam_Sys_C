@@ -1,0 +1,17 @@
+<form method="post">
+    {% csrf_token %}
+    <div>
+        <h3>Crear Pregunta</h3>
+        {{ form.as_p }}
+    </div>
+    <div>
+        <h3>Preguntas</h3>
+        {{ formset.management_form }}
+        {% for pregunta_form in formset %}
+            <div>
+                {{ pregunta_form.as_p }}
+            </div>
+        {% endfor %}
+    </div>
+    <button type="submit" class="button">Crear Preguntas</button>
+</form>

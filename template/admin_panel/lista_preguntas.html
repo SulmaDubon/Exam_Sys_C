@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista de Preguntas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #007bff;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        .button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            font-size: 14px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .message.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table th, table td {
+            padding: 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        table th {
+            background-color: #007bff;
+            color: #fff;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            margin-bottom: 5px;
+        }
+        .actions a {
+            margin-right: 10px;
+            text-decoration: none;
+            color: #007bff;
+            transition: color 0.3s ease;
+        }
+        .actions a:hover {
+            color: #0056b3;
+        }
+        .pagination {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .pagination span {
+            display: inline-block;
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 0 5px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .pagination a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        .pagination a:hover {
+            color: #0056b3;
+        }
+        .pagination .current {
+            background-color: #007bff;
+            color: #fff;
+            border: 1px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lista de Preguntas</h1>
+
+        <!-- Mostrar los mensajes de Django -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Botones de acciones -->
+        <div class="action-buttons">
+            <a href="{% url 'admin_panel:pregunta_create' %}" class="button">Añadir Pregunta</a>
+            <a href="{% url 'admin_panel:subir_preguntas' %}" class="button">Subir Preguntas</a>
+            <form method="get" action="{% url 'admin_panel:actualizar_preguntas' %}" style="display:inline;">
+                <button type="submit" class="button">Actualizar Preguntas</button>
+            </form>
+        </div>
+
+        <!-- Tabla de preguntas -->
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Texto de la Pregunta</th>
+                    <th>Respuestas</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pregunta in preguntas %}
+                <tr>
+                    <td>{{ pregunta.id }}</td>
+                    <td>{{ pregunta.texto }}</td>
+                    <td>
+                        <ul>
+                            <li><strong>Correcta:</strong> {{ pregunta.respuesta_correcta }}</li>
+                            <li><strong>1:</strong> {{ pregunta.respuesta1 }}</li>
+                            <li><strong>2:</strong> {{ pregunta.respuesta2 }}</li>
+                            <li><strong>3:</strong> {{ pregunta.respuesta3 }}</li>
+                            <li><strong>4:</strong> {{ pregunta.respuesta4 }}</li>
+                        </ul>
+                    </td>
+                    <td class="actions">
+                            <a href="{% url 'admin_panel:pregunta_delete' pregunta.pk %}">Eliminar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Navegación de Paginación -->
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; Primera</a>
+                <a href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+            {% endif %}
+
+            <span class="current">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">Última &raquo;</a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

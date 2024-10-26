@@ -1,0 +1,29 @@
+<h2>{% if object %}Editar{% else %}Crear{% endif %} Pregunta</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <h3>Respuestas</h3>
+    {{ respuestas.management_form }}  <!-- Esto es crucial para el formset -->
+    <table>
+        <thead>
+            <tr>
+                <th>Texto de la respuesta</th>
+                <th>¿Es correcta?</th>
+                <th>Letra</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for formset_form in respuestas %}
+                <tr>
+                    <td>{{ formset_form.texto }}</td>
+                    <td>{{ formset_form.es_correcta }}</td>
+                    <td>{{ formset_form.letra }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <button type="submit">Guardar</button>
+</form>
