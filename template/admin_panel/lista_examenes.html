@@ -62,7 +62,8 @@
                 <td>
                     <a href="{% url 'admin_panel:editar_examen' examen.pk %}">Editar</a>
                     <a href="{% url 'admin_panel:eliminar_examen' examen.pk %}">Eliminar</a>
-                    <a href="{% url 'admin_panel:resultados_administrador' examen.pk %}">Resultados</a>
+                    <a href="{% url 'admin_panel:resultados_examen' examen.pk %}?action=info">Resultados</a>
+
                 </td>
             </tr>
             {% endfor %}

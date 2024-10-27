@@ -46,7 +46,7 @@
         <a class="btn" href="{% url 'admin_panel:generar_informe_examen' %}">Generar Informe de Examen</a>
         
         <!-- Botón para listar usuarios inscritos -->
-        <a class="btn" href="{% url 'admin_panel:lista_usuarios' %}">Listar Usuarios Inscritos</a>
+        <a class="btn" href="{% url 'admin_panel:usuarios_inscritos' examen.pk %}">Listar Usuarios Inscritos</a>
     </div>
 </body>
 </html>

@@ -1,35 +1,41 @@
 # admin_panel/views.py
 import random
-from django.forms import ValidationError, formset_factory
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views import View
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
-from django.urls import reverse_lazy
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils.decorators import method_decorator
+from datetime import date, datetime, timedelta
+
 import openpyxl
 import pandas as pd
-from users.models import CustomUser
-from dashboard_users.models import Examen, InscripcionExamen, Modulo, Pregunta, Respuesta, TipoExamen, UserExam
-from dashboard_users.forms import ExamenForm, PreguntaFormSet, RespuestaFormSet,  TipoExamenForm, ModuloFormSet, SubirPreguntasForm, PreguntaForm  # Importar ExamenForm desde admin_panel/forms.py
-from users.forms import UserRegistrationForm  # Importar UserRegistrationForm desde users/forms.py
-from django.contrib.auth.views import LoginView
-from django.contrib import messages 
-from datetime import date, datetime, timedelta
-from django.core.paginator import Paginator
-from django.db.models import Q
-from django.urls import reverse
-from django.db.models import Max
-from django.views.generic.edit import FormView
-from django.http import HttpResponse, JsonResponse
-from django.db import transaction 
-from django.db.models import Prefetch 
-from openpyxl.styles import PatternFill 
-from reportlab.lib.pagesizes import letter
+from openpyxl.styles import PatternFill
 from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.views import LoginView
+from django.core.paginator import Paginator
+from django.db import transaction
+from django.db.models import Max, Q, Prefetch
+from django.forms import ValidationError, formset_factory
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
+from django.views import View
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
+from django.views.generic.edit import FormView
+
+from dashboard_users.forms import (
+    ExamenForm, ModuloFormSet, PreguntaForm, PreguntaFormSet, RespuestaFormSet, 
+    SubirPreguntasForm, TipoExamenForm
+)
+from dashboard_users.models import (
+    Examen, InscripcionExamen, Modulo, Pregunta, Respuesta, TipoExamen, UserExam
+)
+from users.forms import UserRegistrationForm
+from users.models import CustomUser
+from django.db.models import Avg
 
 
 # from .decorators import es_admin
@@ -247,31 +253,34 @@ class EliminarExamen(DeleteView):
 #-----------------------------------------------------------------
 
 @method_decorator([login_required, user_passes_test(es_admin)], name='dispatch')
-class UsuariosInscritosView(DetailView):
-    model = Examen
-    template_name = 'admin_panel/usuarios_inscritos.html'
-    context_object_name = 'examen'
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        search_query = self.request.GET.get('search', '')
-        
-        if search_query:
-            usuarios = self.object.usuarios.filter(
-                Q(first_name__icontains=search_query) |
-                Q(last_name__icontains=search_query) |
-                Q(cedula__icontains=search_query)
-            )
-        else:
-            usuarios = self.object.usuarios.all()
-        
-        paginator = Paginator(usuarios, 20)  # Mostrar 20 usuarios por página
-        page_number = self.request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-        
-        context['search_query'] = search_query
-        context['page_obj'] = page_obj
-        return context
+#class UsuariosInscritosView(DetailView):
+#    model = Examen
+#    template_name = 'admin_panel/usuarios_inscritos.html'
+#    context_object_name = 'examen'
+
+#    def get_context_data(self, **kwargs):
+#        context = super().get_context_data(**kwargs)
+#        search_query = self.request.GET.get('search', '')
+
+        # Obtener los usuarios que están inscritos al examen actual
+#       user_exams = UserExam.objects.filter(examen=self.object)
+
+#        if search_query:
+#            usuarios = user_exams.filter(
+#                Q(usuario__first_name__icontains=search_query) |
+#                Q(usuario__last_name__icontains=search_query) |
+#                Q(usuario__cedula__icontains=search_query)
+#            ).select_related('usuario')
+#        else:
+#            usuarios = user_exams.select_related('usuario')
+
+#       paginator = Paginator(usuarios, 20)  # Mostrar 20 usuarios por página
+#        page_number = self.request.GET.get('page')
+#        page_obj = paginator.get_page(page_number)
+
+#       context['search_query'] = search_query
+#        context['page_obj'] = page_obj
+#        return context
 
 #-------------------------------------------------------
 #           VISTA PARA MODULOS ASOCIADOS A EXAMEN
@@ -565,7 +574,6 @@ class CrearTipoExamenView(View):
 
 
 
-
 class EditarTipoExamenView(View):
     def get(self, request, pk):
         tipo_examen = get_object_or_404(TipoExamen, pk=pk)
@@ -603,11 +611,10 @@ class TipoExamenDeleteView(DeleteView):
 #-----------------------------------------------
 #         RESULTADOS
 #---------------------------------------------
-class ResultadosAdministrador(View):
-    def get(self, request, examen_id):
-        examen = get_object_or_404(Examen, pk=examen_id)
-        # Aquí puedes obtener los resultados asociados al examen si es necesario
-        return render(request, 'admin_panel/resultados_administrador.html', {'examen': examen})
+#class ResultadosAdministrador(View):
+#    def get(self, request, examen_id):
+#        examen = get_object_or_404(Examen, pk=examen_id)
+#        return render(request, 'admin_panel/resultados_administrador.html', {'examen': examen})
     
 #-----------------------------------------------
 #    INFORMES
@@ -761,3 +768,51 @@ def certificado(request, user_exam_id):
     doc.build(story)
 
     return response
+
+#-------------------PRUEBA NUEVA VISTA RESULTADO
+
+
+class ResultadosExamenView(View):
+    template_name = 'admin_panel/resultados_examen.html'
+
+    @method_decorator([login_required, user_passes_test(lambda u: u.is_staff)], name='dispatch')
+    def get(self, request, examen_id):
+        action = request.GET.get('action', 'info')
+        examen = get_object_or_404(Examen, pk=examen_id)
+
+        context = {'examen': examen, 'action': action}
+
+        if action == 'info':
+            # Lógica para generar el informe del examen
+            total_usuarios = UserExam.objects.filter(examen=examen).count()
+            usuarios_aprobados = UserExam.objects.filter(examen=examen, estado='Aprobado').count()
+            promedio_notas = UserExam.objects.filter(examen=examen).aggregate(promedio=Avg('nota'))['promedio']
+
+            context.update({
+                'total_usuarios': total_usuarios,
+                'usuarios_aprobados': usuarios_aprobados,
+                'promedio_notas': promedio_notas
+            })
+
+        elif action == 'usuarios':
+            # Lógica para listar usuarios inscritos
+            search_query = request.GET.get('search', '')
+            user_exams = UserExam.objects.filter(examen=examen)
+
+            if search_query:
+                user_exams = user_exams.filter(
+                    Q(usuario__first_name__icontains=search_query) |
+                    Q(usuario__last_name__icontains=search_query) |
+                    Q(usuario__cedula__icontains=search_query)
+                ).select_related('usuario')
+
+            paginator = Paginator(user_exams, 20)  # Mostrar 20 usuarios por página
+            page_number = request.GET.get('page')
+            page_obj = paginator.get_page(page_number)
+
+            context.update({
+                'page_obj': page_obj,
+                'search_query': search_query,
+            })
+
+        return render(request, self.template_name, context)

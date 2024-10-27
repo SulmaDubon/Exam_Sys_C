@@ -24,6 +24,7 @@
                 {% for form in modulo_formset %}
                     <div class="form-group modulo-form">
                         {{ form.as_p }}
+                        <input type="hidden" name="{{ form.prefix }}-DELETE" class="delete-flag">
                         <div class="button-container">
                             <button type="button" class="btn btn-danger remove-modulo" onclick="removeModulo(this)">Eliminar Módulo</button>
                         </div>
@@ -75,6 +76,7 @@
         margin-bottom: 20px;
         border-radius: 8px;
         position: relative;
+        background-color: #f9f9f9;
     }
     .remove-modulo {
         margin-top: 10px;
@@ -94,7 +96,8 @@
             const newFormDiv = document.createElement('div');
             newFormDiv.classList.add('form-group', 'modulo-form');
             newFormDiv.innerHTML = newFormHtml + 
-                `<div class="button-container">
+                `<input type="hidden" name="form-${formIndex}-DELETE" class="delete-flag">
+                <div class="button-container">
                     <button type="button" class="btn btn-danger remove-modulo" onclick="removeModulo(this)">Eliminar Módulo</button>
                 </div>`;
             formContainer.appendChild(newFormDiv);
@@ -105,7 +108,9 @@
     // Función para eliminar un módulo
     function removeModulo(button) {
         const formToRemove = button.closest('.modulo-form');
-        formToRemove.remove();
+        formToRemove.querySelector('.delete-flag').value = 'on';
+        formToRemove.style.display = 'none';
     }
 </script>
 {% endblock %}
+

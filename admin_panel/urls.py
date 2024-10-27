@@ -4,15 +4,17 @@ from .views import (
     VistaAdminPanel,
     ListaUsuarios, CrearUsuario, EditarUsuario, EliminarUsuario,
     ListaExamenes, CrearExamen, EditarExamen, EliminarExamen,
-    UsuariosInscritosView,
+    #UsuariosInscritosView,
     ListaPreguntas, CrearPreguntaView, PreguntaDeleteView,
     AccionesExamenesView,
     TipoExamenListView, CrearTipoExamenView, EditarTipoExamenView, TipoExamenDeleteView,
     get_modulos,
     SubirPreguntasView, ActualizarPreguntasView,
-    ResultadosAdministrador,
+    #ResultadosAdministrador,
     generar_informe_examen,
     certificado,
+    ResultadosExamenView
+    
 )
 
 app_name = 'admin_panel'
@@ -30,7 +32,7 @@ urlpatterns = [
     path('examenes/crear/', CrearExamen.as_view(), name='crear_examen'),
     path('examenes/editar/<int:pk>/', EditarExamen.as_view(), name='editar_examen'),
     path('examenes/eliminar/<int:pk>/', EliminarExamen.as_view(), name='eliminar_examen'),
-    path('examenes/usuarios-inscritos/<int:pk>/', UsuariosInscritosView.as_view(), name='usuarios_inscritos'),
+    #path('examenes/usuarios-inscritos/<int:pk>/', UsuariosInscritosView.as_view(), name='usuarios_inscritos'),
     path('examenes/acciones/', AccionesExamenesView.as_view(), name='acciones_examenes'),
 
     # Preguntas
@@ -50,7 +52,9 @@ urlpatterns = [
     path('get-modulos/<int:tipo_examen_id>/', get_modulos, name='get_modulos'),
 
     # Resultados administrador
-    path('examenes/resultados/<int:examen_id>/', ResultadosAdministrador.as_view(), name='resultados_administrador'),  
+    #path('examenes/resultados/<int:examen_id>/', ResultadosAdministrador.as_view(), name='resultados_administrador'),  
     path('generar-informe-examen/', generar_informe_examen, name='generar_informe_examen'),  # Ruta para generar informe de examen
     path('certificado/<int:user_exam_id>/', certificado, name='certificado'),  # Ruta para el certificado
+    path('examen/<int:examen_id>/', ResultadosExamenView.as_view(), name='resultados_examen'),
+
 ]
