@@ -1,4 +1,5 @@
 # admin_panel/views.py
+from io import BytesIO
 import random
 from datetime import date, datetime, timedelta
 
@@ -777,13 +778,19 @@ class ResultadosExamenView(View):
 
     @method_decorator([login_required, user_passes_test(lambda u: u.is_staff)], name='dispatch')
     def get(self, request, examen_id):
+        # Obtener la acción de la URL, que determina qué mostrar
         action = request.GET.get('action', 'info')
         examen = get_object_or_404(Examen, pk=examen_id)
 
+        # Si la acción es 'generar_informe', genera y devuelve el archivo Excel
+        if action == 'generar_informe':
+            return self.generar_informe_excel(examen)
+
+        # Crear el contexto inicial con el examen y la acción
         context = {'examen': examen, 'action': action}
 
+        # Lógica para generar el informe del examen en la vista (no Excel)
         if action == 'info':
-            # Lógica para generar el informe del examen
             total_usuarios = UserExam.objects.filter(examen=examen).count()
             usuarios_aprobados = UserExam.objects.filter(examen=examen, estado='Aprobado').count()
             promedio_notas = UserExam.objects.filter(examen=examen).aggregate(promedio=Avg('nota'))['promedio']
@@ -791,7 +798,7 @@ class ResultadosExamenView(View):
             context.update({
                 'total_usuarios': total_usuarios,
                 'usuarios_aprobados': usuarios_aprobados,
-                'promedio_notas': promedio_notas
+                'promedio_notas': promedio_notas,
             })
 
         elif action == 'usuarios':
@@ -815,4 +822,85 @@ class ResultadosExamenView(View):
                 'search_query': search_query,
             })
 
+        # Renderizar la plantilla con el contexto final
         return render(request, self.template_name, context)
+
+    def generar_informe_excel(self, examen):
+        # Obtener todos los exámenes y preparar el informe
+        examenes = Examen.objects.filter(pk=examen.pk).prefetch_related(
+            Prefetch('preguntas', queryset=Pregunta.objects.all())
+        )
+
+        informe_data = []
+        usuarios = []
+
+        for examen in examenes:
+            inscripciones = InscripcionExamen.objects.filter(examen=examen)
+
+            for pregunta in examen.preguntas.all():
+                respuesta_correcta = pregunta.respuestas.filter(es_correcta=True).first()
+                correcta_letra = respuesta_correcta.letra if respuesta_correcta else None
+
+                fila_base = {
+                    'Modulo': pregunta.modulo.nombre,
+                    'Pregunta': pregunta.id,
+                    'Respuesta Correcta': correcta_letra,
+                    'Aciertos': 0,
+                    'Errores': 0,
+                    'Nulas': 0,
+                }
+
+                for inscripcion in inscripciones:
+                    try:
+                        user_exam = UserExam.objects.get(usuario=inscripcion.usuario, examen=examen)
+                        respuestas_usuario = user_exam.respuestas
+
+                        respuesta_id = respuestas_usuario.get(str(pregunta.id), None)
+
+                        letra_respuesta = None
+                        if respuesta_id is not None:
+                            respuesta = Respuesta.objects.get(id=respuesta_id)
+                            letra_respuesta = respuesta.letra
+
+                        fila_base[inscripcion.usuario.username] = letra_respuesta
+
+                        if letra_respuesta == correcta_letra:
+                            fila_base['Aciertos'] += 1
+                        elif letra_respuesta is None:
+                            fila_base['Nulas'] += 1
+                        else:
+                            fila_base['Errores'] += 1
+
+                        if inscripcion.usuario.username not in usuarios:
+                            usuarios.append(inscripcion.usuario.username)
+
+                    except UserExam.DoesNotExist:
+                        continue
+                    except Respuesta.DoesNotExist:
+                        fila_base[inscripcion.usuario.username] = None
+
+                informe_data.append(fila_base)
+
+        # Crear un DataFrame para los datos del informe
+        df_informe = pd.DataFrame(informe_data)
+
+        # Crear un archivo Excel
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Informe de Respuestas"
+
+        headers = ['Modulo', 'Pregunta', 'Respuesta Correcta'] + usuarios + ['Aciertos', 'Errores', 'Nulas']
+        ws.append(headers)
+
+        for index, row in df_informe.iterrows():
+            row = [cell if cell is not None else '' for cell in row]
+            ws.append(row)
+
+        # Guardar el archivo en memoria para descargarlo
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+
+        response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename="informe_examen_{examen.nombre}.xlsx"'
+        return response
